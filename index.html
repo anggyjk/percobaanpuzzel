@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Puzzle Challenge - Kelompok 5</title>
+    <style>
+        :root{ 
+            --purple-600:#6a0dad; --purple-500:#8e39d6; --bg:#f4e9ff; --text:#2a005e; --muted:#6b5aa3;
+            --red:#ff6b6b; --orange:#ffa726; --green:#4caf50; --blue:#42a5f5; --teal:#26c6da; --pink:#ec407a;
+            --deep-purple:#7e57c2; --indigo:#5c6bc0; --cyan:#00acc1; --amber:#ffb300; --lime:#cddc39;
+        }
+
+        /* 3D Animated Background */
+        .background-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            animation: float 20s infinite linear;
+        }
+
+        .shape:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 5%;
+            background: radial-gradient(circle, rgba(106, 13, 173, 0.15) 0%, transparent 70%);
+            animation-duration: 25s;
+        }
+
+        .shape:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            left: 80%;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.1) 0%, transparent 70%);
+            animation-duration: 20s;
+            animation-delay: -5s;
+        }
+
+        .shape:nth-child(3) {
+            width: 400px;
+            height: 400px;
+            top: 30%;
+            left: 60%;
+            background: radial-gradient(circle, rgba(66, 165, 245, 0.1) 0%, transparent 70%);
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(50px, 50px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 100px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-50px, 50px) rotate(270deg);
+            }
+        }
+
+        /* Particle Effects */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: particle-float 15s infinite linear;
+        }
+
+        @keyframes particle-float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        body{
+            font-family: 'Segoe UI', Roboto, Arial; 
+            margin:0; 
+            background:var(--bg); 
+            color:var(--text); 
+            font-size:14px;
+            position: relative;
+            min-height: 100vh;
+        } 
+
+        .app{
+            min-height:100vh; 
+            display:flex; 
+            flex-direction:column; 
+            align-items:center; 
+            padding:15px 10px; 
+            position:relative;
+            z-index: 1;
+        }
+
+        /* Enhanced QR Code Button */
+        .qr-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, var(--purple-600), var(--pink));
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 6px 20px rgba(106, 13, 173, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .qr-btn:hover {
+            transform: scale(1.15) rotate(15deg);
+            box-shadow: 0 8px 30px rgba(106, 13, 173, 0.6);
+        }
+
+        /* Enhanced QR Code Modal */
+        .qr-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .qr-modal.active {
+            display: flex;
+            animation: modalAppear 0.3s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .qr-content {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            border: 2px solid rgba(106, 13, 173, 0.3);
+            backdrop-filter: blur(20px);
+        }
+
+        .qr-close {
+            position: absolute;
+            top: 15px;
+            right: 18px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--muted);
+            background: none;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .qr-close:hover {
+            background: rgba(106, 13, 173, 0.1);
+            color: var(--purple-600);
+            transform: rotate(90deg);
+        }
+
+        .qr-title {
+            color: var(--purple-600);
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .qr-image {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 20px;
+            border: 3px solid var(--purple-500);
+            border-radius: 15px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 8px 25px rgba(106, 13, 173, 0.2);
+        }
+
+        .qr-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .qr-info {
+            text-align: left;
+            background: linear-gradient(135deg, rgba(249, 243, 255, 0.8), rgba(240, 230, 255, 0.9));
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 4px solid var(--purple-600);
+        }
+
+        .qr-info h4 {
+            color: var(--purple-600);
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .qr-info ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 14px;
+        }
+
+        .qr-info li {
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        /* Enhanced Grid Menu Styles */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+
+        .menu-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+            border-radius: 20px;
+            padding: 25px;
+            text-decoration: none;
+            color: var(--text);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+        }
+
+        .menu-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .menu-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .menu-card-icon {
+            font-size: 28px;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .menu-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0;
+            flex: 1;
+        }
+
+        .menu-card-desc {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .menu-card-arrow {
+            font-size: 18px;
+            color: var(--muted);
+            transition: all 0.3s ease;
+        }
+
+        .menu-card:hover .menu-card-arrow {
+            transform: translateX(6px);
+            color: var(--purple-600);
+        }
+
+        /* Special Cards */
+        .card-featured {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+            color: white;
+        }
+
+        .card-featured .menu-card-title,
+        .card-featured .menu-card-desc,
+        .card-featured .menu-card-arrow {
+            color: white;
+        }
+
+        .card-featured .menu-card-icon {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .card-popular {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.9), rgba(238, 90, 82, 0.9));
+            color: white;
+        }
+
+        .card-popular .menu-card-title,
+        .card-popular .menu-card-desc,
+        .card-popular .menu-card-arrow {
+            color: white;
+        }
+
+        .card-popular .menu-card-icon {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Enhanced Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 70px 30px;
+            background: linear-gradient(135deg, #6a0dad, #8e39d6, #ff6b6b);
+            color: white;
+            border-radius: 25px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(106, 13, 173, 0.3);
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            animation: hero-title-pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes hero-title-pulse {
+            from {
+                transform: scale(1);
+                text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            }
+            to {
+                transform: scale(1.05);
+                text-shadow: 4px 4px 16px rgba(0,0,0,0.4);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.95;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            opacity: 0.95;
+            font-weight: 600;
+        }
+
+        /* Puzzle Sections */
+        .puzzle-section {
+            display: none;
+            width: 100%;
+            max-width: 900px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 10px 40px rgba(105,70,155,0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .puzzle-section.active {
+            display: block;
+            animation: sectionSlide 0.5s ease-out;
+        }
+
+        @keyframes sectionSlide {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #8a7ca8, #6b5aa3);
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 15px;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(107, 90, 163, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(107, 90, 163, 0.4);
+        }
+
+        /* Puzzle Styles */
+        .puzzle {
+            padding: 20px;
+            border-left: 5px solid var(--purple-600);
+            border-radius: 10px;
+            background: rgba(251, 245, 255, 0.7);
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .grid {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        .grid td {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(106, 13, 173, 0.2);
+            text-align: center;
+            background: rgba(251, 245, 255, 0.8);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .grid td:hover {
+            background: rgba(106, 13, 173, 0.1);
+            transform: scale(1.05);
+        }
+
+        .cell {
+            width: 46px;
+            height: 46px;
+            border: none;
+            background: transparent;
+            font-weight: 700;
+            color: var(--purple-600);
+            text-align: center;
+            font-size: 18px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .cell:focus {
+            outline: none;
+            background: rgba(106, 13, 173, 0.1);
+            box-shadow: 0 0 0 2px var(--purple-500);
+        }
+
+        /* Enhanced Button Styles */
+        .btn {
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(106, 13, 173, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+            backdrop-filter: blur(10px);
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(106,13,173,0.4);
+        }
+
+        .option-btn {
+            background: linear-gradient(135deg, var(--purple-500), var(--purple-400));
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            margin: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(106, 13, 173, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .option-btn:hover {
+            background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(106,13,173,0.4);
+        }
+
+        .shape-grid, .parity-grid, .word-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .shape-item, .parity-bit {
+            font-size: 40px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .shape-item:hover, .parity-bit:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(106, 13, 173, 0.3);
+        }
+
+        /* Floating animation */
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .card-featured {
+                grid-column: 1;
+            }
+            
+            .hero-title {
+                font-size: 36px;
+            }
+            
+            .hero-subtitle {
+                font-size: 18px;
+            }
+            
+            .hero-stats {
+                gap: 20px;
+            }
+            
+            .stat-number {
+                font-size: 28px;
+            }
+            
+            .grid td {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .cell {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 28px;
+            }
+            
+            .menu-card {
+                padding: 20px;
+            }
+            
+            .menu-card-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .shape-item, .parity-bit {
+                width: 50px;
+                height: 50px;
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 3D Animated Background -->
+    <div class="background-3d">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+        <div class="particles" id="particles-container"></div>
+    </div>
+
+    <!-- Enhanced QR Code Button -->
+    <button class="qr-btn floating" onclick="toggleQR()">⋮</button>
+
+    <!-- Enhanced QR Code Modal -->
+    <div class="qr-modal" id="qrModal">
+        <div class="qr-content">
+            <button class="qr-close" onclick="toggleQR()">&times;</button>
+            <div class="qr-title">Identitas Kelompok 5</div>
+            <div class="qr-image">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Kelompok%205%20-%20Pendidikan%20Matematika%2C%20Kelas%20E%2C%20FKIP%20Universitas%20Jember%0A%0AAnggota%3A%0A1.%20Rika%20Dwi%20Agustin%20(240210101012)%0A2.%20Amalatus%20Sholihah%20(240210101022)%0A3.%20Azza%20Kusuma%20Wardani%20(240210101025)" 
+                     alt="QR Code Identitas Kelompok 5">
+            </div>
+            <div class="qr-info">
+                <h4>Kelompok 5</h4>
+                <ul>
+                    <li><strong>Rika Dwi Agustin</strong> (240210101012)</li>
+                    <li><strong>Amalatus Sholihah</strong> (240210101022)</li>
+                    <li><strong>Azza Kusuma Wardani</strong> (240210101025)</li>
+                </ul>
+                <p style="text-align:center; margin:15px 0 0 0; font-size:13px; color:var(--muted);">
+                    Pendidikan Matematika, Kelas E<br>FKIP Universitas Jember
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="app">
+        <!-- Enhanced Hero Section -->
+        <div class="hero-section">
+            <h1 class="hero-title">🧠 Math Puzzle Challenge</h1>
+            <p class="hero-subtitle">12 Jenis Puzzle Logika · Pattern Recognition · Latihan Otak · Game Edukasi Matematika</p>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Jenis Puzzle</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Level Kesulitan</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Tantangan</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Menu Grid -->
+        <div class="menu-grid" id="mainMenu">
+            <!-- Featured Cards -->
+            <div class="menu-card card-featured floating" onclick="showSection('play')" style="--accent1: #667eea; --accent2: #764ba2;">
+                <div class="menu-card-header">
+                    <div class="menu-card-icon">🎯</div>
+                    <h3 class="menu-card-title">MAIN PUZZLE ACAK</h3>
+                    <div class="menu-card-arrow">🚀</div>
+                </div>
+                <p class="menu-card-desc">Langsung main puzzle acak. Tes kemampuanmu dengan tantangan mengejutkan!</p>
+            </div>
+
+            <div class="menu-card card-popular" onclick="showSection('catalog')" style="--accent1: #ff6b6b; --accent2: #ee5a52;">
+                <div class="menu-card-header">
+                    <div class="menu-card-icon">📚</div>
+                    <h3 class="menu-card-title">Katalog Puzzle</h3>
+                    <div class="menu-card-arrow">→</div>
+                </div>
+                <p class="menu-card-desc">Jelajahi semua jenis puzzle. Pilih favoritmu atau coba yang baru!</p>
+            </div>
+
+            <!-- Regular Cards -->
+            <div class="menu-card" onclick="showSection('sudoku')" style="--accent1: var(--green); --accent2: var(--teal);">
+                <div class="menu-card-header">
+                    <div class="menu-card-icon">🔢</div>
+                    <h3 class="menu-card-title">Puzzle Sudoku</h3>
+                    <div class="menu-card-arrow">→</div>
+                </div>
+                <p class="menu-card-desc">Puzzle penempatan angka klasik dalam ukuran 4×4, 6×6, 8×8 & 10×10</p>
+            </div>
+
+            <div class="menu-card" onclick="showSection('sequence')" style="--accent1: var(--orange); --accent2: var(--amber);">
+                <div class="menu-card-header">
+                    <div class="menu-card-icon">📈</div>
+                    <h3 class="menu-card-title">Puzzle Sequence</h3>
+                    <div class="menu-card-arrow">→</div>
+                </div>
+                <p class="menu-card-desc">Temukan pola dalam urutan angka - aritmatika, geometri, Fibonacci</p>
+            </div>
+
+            <div class="menu-card" onclick="showSection('logic')" style="--accent1: var(--blue); --accent2: var(--indigo);">
+                <div class="menu-card-header">
+                    <div class="menu-card-icon">🧠</div>
+                    <h3 class="menu-card-title">Puzzle Logika</h3>
+                    <div class="menu-card-arrow">→</div>
+                </div>
+                <p class="menu-card-desc">Selesaikan grid logika dan puzzle deduksi menggunakan petunjuk logis</p>
+            </div>
+
+            <div class="menu-card" onclick="showSection('patterns')" style="--accent1: var(--deep-purple); --accent2: var(--purple-500);">
+                <div class="menu-card-header">
+                    <div class="menu-card-icon">🔺</div>
+                    <h3 class="menu-card-title">Puzzle Pola</h3>
+                    <div class="menu-card-arrow">→</div>
+                </div>
+                <p class="menu-card-desc">Pola bentuk, puzzle paritas, dan pengenalan pola visual</p>
+            </div>
+        </div>
+
+        <!-- Puzzle Sections -->
+        <div id="play" class="puzzle-section">
+            <div class="back-btn" onclick="showMainMenu()">
+                <span>←</span>
+                <span>Kembali ke Menu Utama</span>
+            </div>
+            <h2>🎮 Main Puzzle Acak</h2>
+            <div class="puzzle">
+                <p>Tekan tombol di bawah untuk mendapatkan puzzle acak!</p>
+                <button class="btn" onclick="generateRandomPuzzle()">🎲 Generate Puzzle Acak</button>
+                <div id="randomPuzzleResult"></div>
+            </div>
+        </div>
+
+        <div id="catalog" class="puzzle-section">
+            <div class="back-btn" onclick="showMainMenu()">
+                <span>←</span>
+                <span>Kembali ke Menu Utama</span>
+            </div>
+            <h2>📚 Katalog Puzzle Lengkap</h2>
+            <div class="puzzle">
+                <h3>Pilih jenis puzzle yang ingin dimainkan:</h3>
+                <div class="menu-grid">
+                    <div class="menu-card" onclick="generateSudoku(4)" style="--accent1: var(--green); --accent2: var(--teal);">
+                        <div class="menu-card-header">
+                            <div class="menu-card-icon">🔢</div>
+                            <h3 class="menu-card-title">Sudoku 4×4</h3>
+                        </div>
+                        <p class="menu-card-desc">Level Pemula - Sempurna untuk pemula</p>
+                    </div>
+                    <div class="menu-card" onclick="generateSudoku(6)" style="--accent1: var(--blue); --accent2: var(--indigo);">
+                        <div class="menu-card-header">
+                            <div class="menu-card-icon">🧩</div>
+                            <h3 class="menu-card-title">Sudoku 6×6</h3>
+                        </div>
+                        <p class="menu-card-desc">Level Menengah - Tantangan yang seimbang</p>
+                    </div>
+                    <div class="menu-card" onclick="generateSequence()" style="--accent1: var(--orange); --accent2: var(--amber);">
+                        <div class="menu-card-header">
+                            <div class="menu-card-icon">📈</div>
+                            <h3 class="menu-card-title">Sequence Angka</h3>
+                        </div>
+                        <p class="menu-card-desc">Temukan pola dalam urutan angka</p>
+                    </div>
+                    <div class="menu-card" onclick="generateShapes()" style="--accent1: var(--pink); --accent2: var(--purple-600);">
+                        <div class="menu-card-header">
+                            <div class="menu-card-icon">🔺</div>
+                            <h3 class="menu-card-title">Pola Bentuk</h3>
+                        </div>
+                        <p class="menu-card-desc">Identifikasi pola berulang dalam bentuk</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Puzzle Content Areas -->
+        <div id="puzzleContent"></div>
+    </div>
+
+    <script>
+        // Navigation functions
+        function showSection(sectionId) {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.querySelectorAll('.puzzle-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function showMainMenu() {
+            document.querySelectorAll('.puzzle-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById('mainMenu').style.display = 'grid';
+            document.getElementById('puzzleContent').innerHTML = '';
+        }
+
+        // QR Code functions
+        function toggleQR() {
+            const modal = document.getElementById('qrModal');
+            modal.classList.toggle('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('qrModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                toggleQR();
+            }
+        });
+
+        // Create particle effect
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 3 + 1;
+                const left = Math.random() * 100;
+                const animationDuration = Math.random() * 20 + 10;
+                const animationDelay = Math.random() * 20;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${left}%`;
+                particle.style.animationDuration = `${animationDuration}s`;
+                particle.style.animationDelay = `${animationDelay}s`;
+                
+                const colors = [
+                    'rgba(106, 13, 173, 0.7)',
+                    'rgba(255, 107, 107, 0.7)',
+                    'rgba(66, 165, 245, 0.7)',
+                    'rgba(76, 175, 80, 0.7)'
+                ];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // Puzzle Generation Functions
+        function generateRandomPuzzle() {
+            const puzzles = [
+                () => generateSudoku(4),
+                () => generateSudoku(6),
+                () => generateSequence(),
+                () => generateShapes(),
+                () => generateParity(),
+                () => generateWordPuzzle()
+            ];
+            
+            const randomPuzzle = puzzles[Math.floor(Math.random() * puzzles.length)];
+            randomPuzzle();
+        }
+
+        function generateSudoku(size) {
+            showSection('play');
+            let html = `
+                <div class="back-btn" onclick="showMainMenu()">
+                    <span>←</span>
+                    <span>Kembali ke Menu Utama</span>
+                </div>
+                <h2>🔢 Sudoku ${size}×${size}</h2>
+                <div class="puzzle">
+                    <p>Isi grid Sudoku dengan angka 1-${size} tanpa pengulangan dalam baris, kolom, dan kotak!</p>
+                    <table class="grid">
+            `;
+            
+            for (let i = 0; i < size; i++) {
+                html += '<tr>';
+                for (let j = 0; j < size; j++) {
+                    html += `<td><input class="cell" type="text" maxlength="1" oninput="this.value=this.value.replace(/[^1-${size}]/g,'')"></td>`;
+                }
+                html += '</tr>';
+            }
+            
+            html += `
+                    </table>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn" onclick="checkSudoku(${size})">✓ Periksa Jawaban</button>
+                        <button class="btn" onclick="generateSudoku(${size})">🔄 Puzzle Baru</button>
+                    </div>
+                    <div id="sudokuResult" style="margin-top: 15px;"></div>
+                </div>
+            `;
+            
+            document.getElementById('puzzleContent').innerHTML = html;
+        }
+
+        function generateSequence() {
+            showSection('play');
+            const sequences = [
+                { seq: [2, 4, 6, '?', 10], answer: 8, hint: 'Penambahan tetap' },
+                { seq: [1, 4, 9, '?', 25], answer: 16, hint: 'Kuadrat sempurna' },
+                { seq: [1, 1, 2, 3, '?'], answer: 5, hint: 'Deret Fibonacci' },
+                { seq: [3, 6, 12, '?', 48], answer: 24, hint: 'Perkalian tetap' }
+            ];
+            
+            const selected = sequences[Math.floor(Math.random() * sequences.length)];
+            
+            const html = `
+                <div class="back-btn" onclick="showMainMenu()">
+                    <span>←</span>
+                    <span>Kembali ke Menu Utama</span>
+                </div>
+                <h2>📈 Puzzle Sequence Angka</h2>
+                <div class="puzzle">
+                    <p>Temukan angka yang hilang dalam sequence berikut:</p>
+                    <div style="text-align: center; font-size: 24px; font-weight: bold; margin: 20px 0;">
+                        [${selected.seq.join(', ')}]
+                    </div>
+                    <div style="text-align: center;">
+                        <input type="number" id="sequenceAnswer" placeholder="Masukkan jawaban" style="padding: 10px; font-size: 18px; margin-right: 10px; border: 2px solid var(--purple-500); border-radius: 8px;">
+                        <button class="btn" onclick="checkSequence(${selected.answer})">✓ Periksa Jawaban</button>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="btn" onclick="showHint('${selected.hint}')">💡 Bantuan</button>
+                        <button class="btn" onclick="generateSequence()">🔄 Puzzle Baru</button>
+                    </div>
+                    <div id="sequenceResult" style="margin-top: 15px;"></div>
+                </div>
+            `;
+            
+            document.getElementById('puzzleContent').innerHTML = html;
+        }
+
+        function generateShapes() {
+            showSection('play');
+            const shapes = ['▲', '●', '■', '◆', '★'];
+            const patterns = [
+                { pattern: ['▲', '●', '■'], answer: '▲' },
+                { pattern: ['●', '■', '◆'], answer: '●' },
+                { pattern: ['■', '◆', '★'], answer: '■' },
+                { pattern: ['◆', '★', '▲'], answer: '◆' }
+            ];
+            
+            const selected = patterns[Math.floor(Math.random() * patterns.length)];
+            const displayPattern = [...selected.pattern, '?', ...selected.pattern];
+            
+            const html = `
+                <div class="back-btn" onclick="showMainMenu()">
+                    <span>←</span>
+                    <span>Kembali ke Menu Utama</span>
+                </div>
+                <h2>🔺 Puzzle Pola Bentuk</h2>
+                <div class="puzzle">
+                    <p>Temukan bentuk yang hilang dalam pola berikut:</p>
+                    <div class="shape-grid">
+                        ${displayPattern.map(shape => 
+                            shape === '?' ? 
+                            '<div class="shape-item" style="background: #f0e6ff; color: var(--purple-600);">?</div>' :
+                            `<div class="shape-item">${shape}</div>`
+                        ).join('')}
+                    </div>
+                    <p>Pilih bentuk yang tepat:</p>
+                    <div class="shape-grid">
+                        ${shapes.map(shape => 
+                            `<div class="shape-item" onclick="checkShape('${shape}', '${selected.answer}')">${shape}</div>`
+                        ).join('')}
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="btn" onclick="generateShapes()">🔄 Puzzle Baru</button>
+                    </div>
+                    <div id="shapeResult" style="margin-top: 15px;"></div>
+                </div>
+            `;
+            
+            document.getElementById('puzzleContent').innerHTML = html;
+        }
+
+        function generateParity() {
+            showSection('play');
+            const sequences = [
+                { seq: [1, 0, 1, '?', 1, 0], answer: 0, hint: 'Pola bergantian' },
+                { seq: [0, 1, 0, '?', 0, 1], answer: 1, hint: 'Pola bergantian' },
+                { seq: [1, 1, 0, '?', 1, 1], answer: 0, hint: 'Pola berulang' }
+            ];
+            
+            const selected = sequences[Math.floor(Math.random() * sequences.length)];
+            
+            const html = `
+                <div class="back-btn" onclick="showMainMenu()">
+                    <span>←</span>
+                    <span>Kembali ke Menu Utama</span>
+                </div>
+                <h2>⚖️ Puzzle Paritas Biner</h2>
+                <div class="puzzle">
+                    <p>Temukan nilai yang hilang dalam sequence biner:</p>
+                    <div class="parity-grid">
+                        ${selected.seq.map(bit => 
+                            bit === '?' ? 
+                            '<div class="parity-bit" style="background: #f0e6ff; color: var(--purple-600);">?</div>' :
+                            `<div class="parity-bit">${bit}</div>`
+                        ).join('')}
+                    </div>
+                    <div class="parity-grid">
+                        <div class="parity-bit" onclick="checkParity(0, ${selected.answer})">0</div>
+                        <div class="parity-bit" onclick="checkParity(1, ${selected.answer})">1</div>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="btn" onclick="showHint('${selected.hint}')">💡 Bantuan</button>
+                        <button class="btn" onclick="generateParity()">🔄 Puzzle Baru</button>
+                    </div>
+                    <div id="parityResult" style="margin-top: 15px;"></div>
+                </div>
+            `;
+            
+            document.getElementById('puzzleContent').innerHTML = html;
+        }
+
+        function generateWordPuzzle() {
+            showSection('play');
+            const puzzles = [
+                {
+                    question: "Aku angka ganjil. Hapus satu huruf dan aku menjadi genap. Siapakah aku?",
+                    answer: "tujuh",
+                    options: ["tujuh", "lima", "sembilan", "tiga"]
+                },
+                {
+                    question: "Apa yang memiliki kunci tetapi tidak bisa membuka kunci?",
+                    answer: "piano",
+                    options: ["piano", "komputer", "keyboard", "typewriter"]
+                }
+            ];
+            
+            const selected = puzzles[Math.floor(Math.random() * puzzles.length)];
+            
+            const html = `
+                <div class="back-btn" onclick="showMainMenu()">
+                    <span>←</span>
+                    <span>Kembali ke Menu Utama</span>
+                </div>
+                <h2>🔤 Puzzle Kata</h2>
+                <div class="puzzle">
+                    <p style="font-size: 18px; font-weight: bold; text-align: center;">${selected.question}</p>
+                    <div class="word-options">
+                        ${selected.options.map(option => 
+                            `<button class="option-btn" onclick="checkWordPuzzle('${option}', '${selected.answer}')">${option}</button>`
+                        ).join('')}
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="btn" onclick="generateWordPuzzle()">🔄 Puzzle Baru</button>
+                    </div>
+                    <div id="wordResult" style="margin-top: 15px;"></div>
+                </div>
+            `;
+            
+            document.getElementById('puzzleContent').innerHTML = html;
+        }
+
+        // Check Functions
+        function checkSudoku(size) {
+            // Simple validation for demo purposes
+            const resultDiv = document.getElementById('sudokuResult');
+            resultDiv.innerHTML = '<div style="color: var(--green); font-weight: bold;">✓ Bagus! Terus berlatih! (Dalam versi lengkap, validasi penuh akan dilakukan)</div>';
+        }
+
+        function checkSequence(correctAnswer) {
+            const userAnswer = parseInt(document.getElementById('sequenceAnswer').value);
+            const resultDiv = document.getElementById('sequenceResult');
+            
+            if (userAnswer === correctAnswer) {
+                resultDiv.innerHTML = '<div style="color: var(--green); font-weight: bold;">✅ Benar! Jawaban tepat!</div>';
+            } else if (userAnswer) {
+                resultDiv.innerHTML = '<div style="color: var(--red); font-weight: bold;">❌ Coba lagi! Perhatikan pola dengan seksama.</div>';
+            } else {
+                resultDiv.innerHTML = '<div style="color: var(--orange); font-weight: bold;">⚠️ Masukkan jawaban terlebih dahulu.</div>';
+            }
+        }
+
+        function checkShape(selected, correct) {
+            const resultDiv = document.getElementById('shapeResult');
+            if (selected === correct) {
+                resultDiv.innerHTML = '<div style="color: var(--green); font-weight: bold;">✅ Benar! Pola teridentifikasi dengan tepat!</div>';
+            } else {
+                resultDiv.innerHTML = '<div style="color: var(--red); font-weight: bold;">❌ Belum tepat. Perhatikan urutan polanya.</div>';
+            }
+        }
+
+        function checkParity(selected, correct) {
+            const resultDiv = document.getElementById('parityResult');
+            if (selected === correct) {
+                resultDiv.innerHTML = '<div style="color: var(--green); font-weight: bold;">✅ Benar! Pola biner teridentifikasi!</div>';
+            } else {
+                resultDiv.innerHTML = '<div style="color: var(--red); font-weight: bold;">❌ Coba analisis lagi pola perulangannya.</div>';
+            }
+        }
+
+        function checkWordPuzzle(selected, correct) {
+            const resultDiv = document.getElementById('wordResult');
+            if (selected === correct) {
+                resultDiv.innerHTML = '<div style="color: var(--green); font-weight: bold;">✅ Benar! Jawaban sangat tepat!</div>';
+            } else {
+                resultDiv.innerHTML = '<div style="color: var(--red); font-weight: bold;">❌ Bukan jawaban yang tepat. Coba pikirkan lagi!</div>';
+            }
+        }
+
+        function showHint(hint) {
+            alert(`💡 Petunjuk: ${hint}`);
+        }
+
+        // Initialize particles when page loads
+        document.addEventListener('DOMContentLoaded', createParticles);
+    </script>
+</body>
+</html>
